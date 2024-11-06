@@ -46,27 +46,44 @@ def actualizar_stock():
     # Cargar los datos del archivo
     stock_data = cargar_datos_archivo()
 
-    # Obtener todos los ISBN de la tabla
+    # Obtener todos los ISBN de la tabla celesa_stock
     cursor.execute("SELECT isbn, cnt FROM celesa_stock")
     db_data = {isbn: cnt for isbn, cnt in cursor.fetchall()}
 
-    # Insertar o actualizar según corresponda
+    # Insertar o actualizar en celesa_stock y realizar verificaciones en celesa
     for isbn, cnt in stock_data.items():
+        # Actualizar o insertar en celesa_stock
         if isbn in db_data:
             if db_data[isbn] != cnt:
-                # Actualizar si el valor cnt es diferente
                 cursor.execute("UPDATE celesa_stock SET cnt = %s WHERE isbn = %s", (cnt, isbn))
-                print(f"Actualizado: {isbn} a cnt={cnt}")
+                print(f"Actualizado en celesa_stock: {isbn} a cnt={cnt}")
         else:
-            # Insertar nuevo registro si el ISBN no existe
             cursor.execute("INSERT INTO celesa_stock (isbn, cnt) VALUES (%s, %s)", (isbn, cnt))
-            print(f"Insertado: {isbn} con cnt={cnt}")
+            print(f"Insertado en celesa_stock: {isbn} con cnt={cnt}")
 
-    # Actualizar cnt a 0 para ISBNs que no están en el archivo
+        # Verificar en la tabla celesa si existe el record_reference correspondiente
+        cursor.execute("SELECT stock FROM celesa WHERE record_reference = %s", (isbn,))
+        result = cursor.fetchone()
+
+        if result is not None:  # Si el record_reference existe en celesa
+            current_stock = result[0]
+
+            if current_stock is None:
+                # Si stock es NULL, actualizar con el valor del archivo y novedad a 'new'
+                cursor.execute("UPDATE celesa SET stock = %s, novedad = 'new' WHERE record_reference = %s", (cnt, isbn))
+                print(f"Actualizado en celesa: {isbn} con stock={cnt} y novedad='new' (stock era NULL)")
+            elif current_stock != cnt:
+                # Si stock tiene un valor diferente, actualizar con el nuevo valor y novedad a 'new'
+                cursor.execute("UPDATE celesa SET stock = %s, novedad = 'new' WHERE record_reference = %s", (cnt, isbn))
+                print(f"Actualizado en celesa: {isbn} con stock={cnt} y novedad='new' (stock cambiado)")
+            else:
+                print(f"Sin cambios para {isbn} en celesa (stock igual)")
+
+    # Actualizar cnt a 0 en celesa_stock para ISBNs que no están en el archivo
     for isbn in db_data:
         if isbn not in stock_data:
             cursor.execute("UPDATE celesa_stock SET cnt = 0 WHERE isbn = %s", (isbn,))
-            print(f"Actualizado: {isbn} a cnt=0 (no encontrado en archivo)")
+            print(f"Actualizado en celesa_stock: {isbn} a cnt=0 (no encontrado en archivo)")
 
     # Guardar cambios en la base de datos
     conn.commit()

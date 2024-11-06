@@ -1,9 +1,6 @@
 import mysql.connector
 import xml.etree.ElementTree as ET
 from tqdm import tqdm
-import requests
-import zipfile
-import os
 import configparser
 
 # Leer configuración de la base de datos desde config.ini
@@ -20,6 +17,7 @@ except KeyError as e:
     print(f"Error en la configuración: faltan datos de la base de datos en config.ini ({e})")
     exit(1)
 
+"""
 # URLs de descarga
 total_url = 'https://www.celesa.com/html/servicios_web/onix.php?user=860720&password=Apricor20'
 partial_url = 'https://www.celesa.com/html/servicios_web/onix_parcial.php?user=860720&password=Apricor20'
@@ -47,6 +45,10 @@ with open(zip_filename, 'wb') as f:
 # Descomprimir el archivo zip
 with zipfile.ZipFile(zip_filename, 'r') as zip_ref:
     zip_ref.extractall()
+"""
+
+# Definir el archivo XML directamente (cambiar si es necesario)
+xml_filename = 'Azeta_Catalogo_ONIX.xml'  # Cambiar según el nombre del archivo
 
 # Conectar a la base de datos
 try:
@@ -109,6 +111,13 @@ try:
                 language = descriptive_detail.find('ns:Language', namespaces=namespace) if descriptive_detail is not None else None
                 language_code = language.findtext('ns:LanguageCode', namespaces=namespace) if language is not None else None
 
+                # Validar idioma antes de continuar
+                if language_code not in valid_languages:
+                    print(f"Idioma no válido encontrado: {language_code}, omitiendo registro {record_reference}")
+                    elem.clear()
+                    pbar.update(1)
+                    continue
+
                 # Detalles de publicación
                 publishing_detail = elem.find('ns:PublishingDetail', namespaces=namespace)
                 imprint = publishing_detail.find('ns:Imprint', namespaces=namespace) if publishing_detail is not None else None
@@ -166,7 +175,9 @@ finally:
 
 print("Datos guardados correctamente en la base de datos.")
 
+"""
 # Eliminar los archivos descargados y extraídos
 os.remove(zip_filename)
 os.remove(xml_filename)
 print("Archivos temporales eliminados.")
+"""
