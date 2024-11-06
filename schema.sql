@@ -1,19 +1,23 @@
 CREATE TABLE `celesa` (
-    `record_reference` VARCHAR(50) NOT NULL COLLATE 'utf8mb4_unicode_ci',
-    `title_text` TEXT NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
-    `person_name_inverted` TEXT NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
-    `language_code` VARCHAR(10) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
-    `imprint_name` MEDIUMTEXT NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
-    `publisher_name` MEDIUMTEXT NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
-    `publisher_id_type` INT(10) NULL DEFAULT NULL,
-    `publisher_id` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
-    `publishing_date` DATE NULL DEFAULT NULL,
-    `price_amount` DECIMAL(10,2) NULL DEFAULT NULL,
-    `currency_code` VARCHAR(5) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
-    PRIMARY KEY (`record_reference`) USING BTREE
+	`record_reference` VARCHAR(50) NOT NULL COLLATE 'utf8mb4_unicode_ci',
+	`title_text` TEXT NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+	`person_name_inverted` TEXT NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+	`language_code` VARCHAR(10) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+	`imprint_name` MEDIUMTEXT NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+	`publisher_name` MEDIUMTEXT NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+	`publisher_id_type` INT(10) NULL DEFAULT NULL,
+	`publisher_id` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+	`publishing_date` DATE NULL DEFAULT NULL,
+	`price_amount` DECIMAL(10,2) NULL DEFAULT NULL,
+	`currency_code` VARCHAR(5) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+	`stock` INT(10) NULL DEFAULT NULL,
+	`novedad` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+	PRIMARY KEY (`record_reference`) USING BTREE
 )
 COLLATE='utf8mb4_unicode_ci'
-ENGINE=InnoDB;
+ENGINE=InnoDB
+;
+
 
 
 

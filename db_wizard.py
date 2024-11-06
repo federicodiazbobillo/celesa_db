@@ -1,9 +1,20 @@
 import configparser
 import getpass
 import mysql.connector
+import os
 from mysql.connector import Error
 
 def setup_database_config():
+    # Verificar si config.ini ya existe
+    if os.path.exists('config.ini'):
+        overwrite = input("El archivo config.ini ya existe. ¿Desea eliminarlo y continuar? (s/n): ").strip().lower()
+        if overwrite == 's':
+            os.remove('config.ini')
+            print("Archivo config.ini eliminado. Continuando con la configuración...")
+        else:
+            print("Operación cancelada.")
+            return
+
     config = configparser.ConfigParser()
 
     print("Configuración de la base de datos:")
@@ -98,4 +109,3 @@ def execute_schema_sql(connection):
 
 if __name__ == "__main__":
     setup_database_config()
-

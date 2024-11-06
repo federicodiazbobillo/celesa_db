@@ -2,7 +2,9 @@ import mysql.connector
 import xml.etree.ElementTree as ET
 from tqdm import tqdm
 import configparser
-
+import requests
+import zipfile
+import os 
 # Leer configuración de la base de datos desde config.ini
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -17,7 +19,7 @@ except KeyError as e:
     print(f"Error en la configuración: faltan datos de la base de datos en config.ini ({e})")
     exit(1)
 
-"""
+
 # URLs de descarga
 total_url = 'https://www.celesa.com/html/servicios_web/onix.php?user=860720&password=Apricor20'
 partial_url = 'https://www.celesa.com/html/servicios_web/onix_parcial.php?user=860720&password=Apricor20'
@@ -45,7 +47,7 @@ with open(zip_filename, 'wb') as f:
 # Descomprimir el archivo zip
 with zipfile.ZipFile(zip_filename, 'r') as zip_ref:
     zip_ref.extractall()
-"""
+
 
 # Definir el archivo XML directamente (cambiar si es necesario)
 xml_filename = 'Azeta_Catalogo_ONIX.xml'  # Cambiar según el nombre del archivo
@@ -175,9 +177,9 @@ finally:
 
 print("Datos guardados correctamente en la base de datos.")
 
-"""
+
 # Eliminar los archivos descargados y extraídos
 os.remove(zip_filename)
 os.remove(xml_filename)
 print("Archivos temporales eliminados.")
-"""
+
