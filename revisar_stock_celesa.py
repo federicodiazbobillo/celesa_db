@@ -1,17 +1,33 @@
 import mysql.connector
+import requests
+import os
 from datetime import datetime
+import configparser
 
-# Configuración de la conexión a la base de datos
+# Leer configuración desde config.ini
+config = configparser.ConfigParser()
+config.read('config.ini')
+
+# Configuración de conexión a la base de datos
 db_config = {
-    'host': 'localhost',
-    'user': 'fede',
-    'password': 'B9j3d18.01',
-    'database': 'libreria',
+    'host': config['DATABASE']['HOST'],
+    'user': config['DATABASE']['USER'],
+    'password': config['DATABASE']['PASSWORD'],
+    'database': config['DATABASE']['NAME'],
     'charset': 'utf8mb4'
 }
 
-# Ruta al archivo de datos
+# URL del archivo de datos
+data_url = 'http://www.celesa.com/html/servicios_web/stock.php?fr_usuario=860720&fr_clave=Apricor20'
 data_file_path = 'stockcelesa.csv'
+
+def descargar_archivo():
+    """Descarga el archivo de datos desde la URL especificada."""
+    print("Descargando archivo de datos...")
+    response = requests.get(data_url)
+    with open(data_file_path, 'wb') as file:
+        file.write(response.content)
+    print("Archivo descargado exitosamente.")
 
 def cargar_datos_archivo():
     """Carga los datos desde el archivo en un diccionario."""
@@ -58,5 +74,12 @@ def actualizar_stock():
     conn.close()
     print("Actualización completada.")
 
-if __name__ == '__main__':
+def ejecutar_proceso():
+    """Ejecuta el proceso completo de descarga, actualización y limpieza."""
+    descargar_archivo()
     actualizar_stock()
+    os.remove(data_file_path)  # Eliminar el archivo después del procesamiento
+    print("Archivo de datos eliminado.")
+
+if __name__ == '__main__':
+    ejecutar_proceso()

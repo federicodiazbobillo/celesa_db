@@ -1,12 +1,17 @@
 import pandas as pd
 import mysql.connector
+import configparser
+
+# Leer configuración desde config.ini
+config = configparser.ConfigParser()
+config.read('config.ini')
 
 # Configuración de conexión a la base de datos
 db_config = {
-    'host': 'localhost',
-    'user': 'fede',
-    'password': 'B9j3d18.01',
-    'database': 'libreria',
+    'host': config['DATABASE']['HOST'],
+    'user': config['DATABASE']['USER'],
+    'password': config['DATABASE']['PASSWORD'],
+    'database': config['DATABASE']['NAME'],
     'charset': 'utf8mb4'
 }
 
