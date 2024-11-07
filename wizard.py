@@ -1,5 +1,6 @@
 import subprocess
 import os
+import socket
 
 def crear_entorno_virtual():
     """Crea un entorno virtual si no existe."""
@@ -32,6 +33,26 @@ def ejecutar_script(script_name):
         print(f"Error al ejecutar {script_name}.")
         exit(1)  # Detener el proceso si hay un error en cualquier script
 
+def puerto_disponible(puerto):
+    """Verifica si el puerto está disponible."""
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        return s.connect_ex(('localhost', puerto)) != 0
+
+def iniciar_aplicacion_flask():
+    """Solicita el puerto y arranca la aplicación Flask en el puerto especificado."""
+    while True:
+        try:
+            puerto = int(input("Ingrese el puerto para iniciar la aplicación Flask (por defecto 5000): ") or 5000)
+            if not puerto_disponible(puerto):
+                print(f"El puerto {puerto} ya está en uso. Intente con otro.")
+            else:
+                break
+        except ValueError:
+            print("Por favor, ingrese un número válido de puerto.")
+
+    print(f"Iniciando aplicación Flask en el puerto {puerto}...")
+    subprocess.run(['venv/bin/python', 'run.py', '--host=0.0.0.0', f'--port={puerto}'])
+
 # Crear entorno virtual, instalar requisitos y ejecutar scripts en secuencia
 crear_entorno_virtual()
 instalar_requerimientos()
@@ -41,3 +62,6 @@ ejecutar_script('insert_celesa_descuentos.py')
 ejecutar_script('revisar_stock_celesa.py')
 
 print("Proceso de configuración completado.")
+
+# Iniciar la aplicación Flask al finalizar
+iniciar_aplicacion_flask()
