@@ -28,18 +28,21 @@ def verificaMeli():
     if not meli_access or not meli_access['app_id'] or not meli_access['secret_key']:
         cursor.close()
         conn.close()
-        return False, None, None
+        return False, None, None, None, None
     
     # Verificar el access_token llamando a la API de Mercado Libre
     headers = {'Authorization': f"Bearer {meli_access['access_token']}"}
     response = requests.get("https://api.mercadolibre.com/users/me", headers=headers)
     
-    # Si el token es válido, extraer el nickname
+    # Si el token es válido, extraer nickname, first_name y last_name
     if response.status_code == 200:
-        nickname = response.json().get("nickname")
+        user_data = response.json()
+        nickname = user_data.get("nickname")
+        first_name = user_data.get("first_name")
+        last_name = user_data.get("last_name")
         cursor.close()
         conn.close()
-        return True, meli_access['access_token'], nickname
+        return True, meli_access['access_token'], nickname, first_name, last_name
 
     # Si el token ha expirado, usar el refresh_token para renovarlo
     elif response.status_code == 401 and meli_access['refresh_token']:
@@ -66,25 +69,28 @@ def verificaMeli():
             cursor.execute(update_query, (new_access_token, new_refresh_token, meli_access['app_id']))
             conn.commit()
 
-            # Intentar nuevamente obtener el nickname
+            # Intentar nuevamente obtener nickname, first_name y last_name
             headers = {'Authorization': f"Bearer {new_access_token}"}
             response = requests.get("https://api.mercadolibre.com/users/me", headers=headers)
-            nickname = response.json().get("nickname") if response.status_code == 200 else None
+            user_data = response.json() if response.status_code == 200 else {}
+            nickname = user_data.get("nickname")
+            first_name = user_data.get("first_name")
+            last_name = user_data.get("last_name")
             
             cursor.close()
             conn.close()
-            return True, new_access_token, nickname
+            return True, new_access_token, nickname, first_name, last_name
         else:
             print("Error al renovar el token:", token_response.json())
     
     cursor.close()
     conn.close()
-    return False, None, None
+    return False, None, None, None, None
 
 @main.route('/', methods=['GET', 'POST'])
 def buscar():
     data = None
-    conectado_a_meli, access_token, nickname = verificaMeli()  # Verifica la conexión a Mercado Libre
+    conectado_a_meli, access_token, nickname, first_name, last_name = verificaMeli()  # Verifica la conexión a Mercado Libre
     
     if request.method == 'POST':
         isbn = request.form.get('isbn')
@@ -105,4 +111,4 @@ def buscar():
         cursor.close()
         conn.close()
     
-    return render_template('index.html', data=data, conectado_a_meli=conectado_a_meli, access_token=access_token, nickname=nickname)
+    return render_template('index.html', data=data, conectado_a_meli=conectado_a_meli, access_token=access_token, nickname=nickname, first_name=first_name, last_name=last_name)
