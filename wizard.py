@@ -13,7 +13,7 @@ def crear_entorno_virtual():
 def instalar_requerimientos():
     """Instala los paquetes desde requirements.txt en el entorno virtual."""
     print("\nInstalando paquetes de requirements.txt en el entorno virtual...")
-    result = subprocess.run(['venv/bin/pip', 'install', '-r', 'requirements.txt'])
+    result = subprocess.run(['venv/bin/python', '-m', 'pip', 'install', '-r', 'requirements.txt'])
     
     if result.returncode == 0:
         print("Instalación de paquetes completada.\n")
