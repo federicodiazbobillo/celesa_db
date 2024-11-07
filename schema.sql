@@ -61,3 +61,6 @@ COLLATE='utf8mb4_0900_ai_ci'
 ENGINE=InnoDB
 ;
 
+CREATE INDEX idx_celesa_publisher_id ON celesa(publisher_id);
+CREATE INDEX idx_celesa_descuentos_editorial ON celesa_descuentos(editorial);
+CREATE INDEX idx_celesa_stock ON celesa(stock);
