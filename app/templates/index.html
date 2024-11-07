@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Buscar Datos de Celesa</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>Buscar Datos de Celesa</h1>
+
+    <!-- Formulario para buscar por ISBN -->
+    <form action="{{ url_for('main.buscar') }}" method="post">
+        <label for="isbn">Ingrese ISBN:</label>
+        <input type="text" id="isbn" name="isbn" required>
+        <button type="submit">Buscar</button>
+    </form>
+
+    <!-- Resultados de la búsqueda -->
+    {% if data %}
+        <h2>Resultado de la Búsqueda</h2>
+        <table border="1">
+            <thead>
+                <tr>
+                    {% for key in data[0].keys() %}
+                        <th>{{ key }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in data %}
+                    <tr>
+                        {% for value in row.values() %}
+                            <td>{{ value }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% elif data is not none %}
+        <p>No se encontraron resultados para el ISBN ingresado.</p>
+    {% endif %}
+</body>
+</html>
