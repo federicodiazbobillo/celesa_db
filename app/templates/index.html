@@ -6,6 +6,16 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
+
+    <!-- Mensaje de conexión a Mercado Libre -->
+    {% if conectado_a_meli %}
+        <p style="color: green; font-weight: bold;">
+            Conectado a Mercado Libre como {{ nickname }} (Access Token: {{ access_token }})
+        </p>
+    {% else %}
+        <p style="color: red; font-weight: bold;">No está conectado a Mercado Libre</p>
+    {% endif %}
+
     <h1>Buscar Datos de Celesa</h1>
 
     <!-- Formulario para buscar por ISBN -->
@@ -24,6 +34,7 @@
                     {% for key in data[0].keys() %}
                         <th>{{ key }}</th>
                     {% endfor %}
+                    <th>Imagen</th> <!-- Nueva columna para la imagen -->
                 </tr>
             </thead>
             <tbody>
@@ -32,6 +43,11 @@
                         {% for value in row.values() %}
                             <td>{{ value }}</td>
                         {% endfor %}
+                        <td>
+                            <img src="https://www.celesa.com/imagenes/{{ row['record_reference'][:7] }}/{{ row['record_reference'][:-1] }}.JPG" 
+                                 alt="Imagen de {{ row['record_reference'] }}" 
+                                 style="max-width: 200px; max-height: 200px;">
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
