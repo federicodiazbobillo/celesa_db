@@ -23,10 +23,11 @@ def buscar():
         cursor = conn.cursor(dictionary=True)
         
         # Ejecuta la consulta solo para el ISBN ingresado
-        cursor.execute("SELECT * FROM celesa WHERE record_reference = %s", (isbn,))
+        cursor.execute("SELECT * FROM celesa,celesa_descuentos WHERE celesa.publisher_id = celesa_descuentos.editorial AND celesa.record_reference = '%s ORDER BY dto ASC LIMIT 1", (isbn,))
         data = cursor.fetchall()
         
         cursor.close()
         conn.close()
     
     return render_template('index.html', data=data)
+ 
