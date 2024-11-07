@@ -12,6 +12,8 @@ CREATE TABLE `celesa` (
 	`currency_code` VARCHAR(5) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
 	`stock` INT(10) NULL DEFAULT NULL,
 	`novedad` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+	`idml` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
+	`catalog_id` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
 	PRIMARY KEY (`record_reference`) USING BTREE
 )
 COLLATE='utf8mb4_unicode_ci'
