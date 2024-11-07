@@ -11,7 +11,7 @@ def crear_entorno_virtual():
         print("El entorno virtual ya existe.\n")
 
 def instalar_requerimientos():
-    """Instala los paquetes desde requirements.txt en el entorno virtual."""
+    """Instala los paquetes desde requirements.txt en el entorno virtual usando python -m pip."""
     print("\nInstalando paquetes de requirements.txt en el entorno virtual...")
     result = subprocess.run(['venv/bin/python', '-m', 'pip', 'install', '-r', 'requirements.txt'])
     
