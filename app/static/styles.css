@@ -1,1 +1,54 @@
+/* Navbar principal */
+.navbar {
+    background-color: #333;
+}
+
+.menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+}
+
+.menu > li {
+    position: relative;
+}
+
+.menu > li > a {
+    color: white;
+    padding: 14px 20px;
+    text-decoration: none;
+    display: block;
+}
+
+.menu > li > a:hover {
+    background-color: #555;
+}
+
+/* Estilo del submenú */
+.dropdown {
+    display: none; /* Oculto por defecto */
+    position: absolute;
+    background-color: #333;
+    min-width: 150px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.dropdown li a {
+    color: white;
+    padding: 10px 15px;
+    display: block;
+    text-decoration: none;
+}
+
+.dropdown li a:hover {
+    background-color: #555;
+}
+
+/* Mostrar el submenú al pasar el ratón */
+.menu > li:hover .dropdown {
+    display: block; /* Mostrar el submenú */
+}
 
