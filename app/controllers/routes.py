@@ -15,6 +15,14 @@ db_config = {
 
 # Definición del blueprint principal
 main = Blueprint('main', __name__)
+# Blueprint para Mercado Libre
+mercado_libre_bp = Blueprint('mercado_libre', __name__, url_prefix='/mercado-libre')
+
+# Blueprint para Celesa
+celesa_bp = Blueprint('celesa', __name__, url_prefix='/celesa')
+
+# Blueprint para Configuración
+configuracion_bp = Blueprint('configuracion', __name__, url_prefix='/configuracion')
 
 def verificar_meli():
     """Verifica la conexión a Mercado Libre y renueva el token si ha expirado."""
