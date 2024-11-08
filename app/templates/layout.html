@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Aplicación Celesa{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+
+    <!-- Mensaje de conexión a Mercado Libre -->
+    {% if conectado_a_meli %}
+        <p style="color: green; font-weight: bold;">
+            Conectado a Mercado Libre como {{ first_name }} {{ last_name }} {{ nickname }} (Access Token: {{ access_token }})
+        </p>
+    {% else %}
+        <p style="color: red; font-weight: bold;">No está conectado a Mercado Libre</p>
+    {% endif %}
+
+    <!-- Botonera Horizontal -->
+	<nav class="navbar">
+		<ul class="menu">
+			<li><a href="{{ url_for('main.index') }}">Inicio</a></li>
+			<li><a href="#">Mercado Libre</a>
+				<ul class="dropdown">
+					<li><a href="{{ url_for('mercado_libre.publicaciones') }}">Publicaciones</a></li>
+					<li><a href="{{ url_for('mercado_libre.ventas') }}">Ventas</a></li>
+				</ul>
+			</li>
+			<li><a href="#">Celesa</a>
+				<ul class="dropdown">
+					<li><a href="{{ url_for('main.buscar_celesa') }}">Buscar</a></li>
+					<li><a href="{{ url_for('celesa.publicar') }}">Publicar</a></li>
+				</ul>
+			</li>
+			<li><a href="{{ url_for('configuracion.configuracion') }}">Configuración</a></li>
+		</ul>
+	</nav>
+
+
+
+    <!-- Contenido de la página específica -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+</body>
+</html>
