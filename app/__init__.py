@@ -1,6 +1,6 @@
 
 from flask import Flask
-from .controllers.routes import main
+from .controllers.routes import main, mercado_libre_bp, celesa_bp, configuracion_bp
 
 def create_app():
     app = Flask(__name__)
