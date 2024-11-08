@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, g
 import mysql.connector
 import configparser
 import requests
@@ -13,38 +13,32 @@ db_config = {
     'database': config['DATABASE']['NAME']
 }
 
+# Definición del blueprint principal
 main = Blueprint('main', __name__)
 
-def verificaMeli():
-    """Verifica si está conectado a Mercado Libre mediante los campos app_id, secret_key y access_token."""
+def verificar_meli():
+    """Verifica la conexión a Mercado Libre y renueva el token si ha expirado."""
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor(dictionary=True)
-    
-    # Consulta para obtener app_id, secret_key, access_token y refresh_token
     cursor.execute("SELECT app_id, secret_key, access_token, refresh_token FROM meli_access LIMIT 1")
     meli_access = cursor.fetchone()
-    
-    # Verificar si app_id y secret_key están presentes
-    if not meli_access or not meli_access['app_id'] or not meli_access['secret_key']:
+
+    if not meli_access or not meli_access['access_token']:
         cursor.close()
         conn.close()
         return False, None, None, None, None
-    
-    # Verificar el access_token llamando a la API de Mercado Libre
+
     headers = {'Authorization': f"Bearer {meli_access['access_token']}"}
     response = requests.get("https://api.mercadolibre.com/users/me", headers=headers)
-    
-    # Si el token es válido, extraer nickname, first_name y last_name
+
+    # Si el token es válido, extraer los datos del usuario
     if response.status_code == 200:
         user_data = response.json()
-        nickname = user_data.get("nickname")
-        first_name = user_data.get("first_name")
-        last_name = user_data.get("last_name")
         cursor.close()
         conn.close()
-        return True, meli_access['access_token'], nickname, first_name, last_name
+        return True, meli_access['access_token'], user_data.get('first_name'), user_data.get('last_name'), user_data.get('nickname')
 
-    # Si el token ha expirado, usar el refresh_token para renovarlo
+    # Si el token ha expirado y hay un refresh_token, intenta renovarlo
     elif response.status_code == 401 and meli_access['refresh_token']:
         data = {
             'grant_type': 'refresh_token',
@@ -54,13 +48,13 @@ def verificaMeli():
         }
         token_response = requests.post("https://api.mercadolibre.com/oauth/token", data=data)
 
-        # Si la renovación es exitosa, actualizar el access_token y refresh_token en la base de datos
+        # Si la renovación es exitosa, actualiza el access_token y refresh_token en la base de datos
         if token_response.status_code == 200:
             new_tokens = token_response.json()
             new_access_token = new_tokens['access_token']
             new_refresh_token = new_tokens.get('refresh_token', meli_access['refresh_token'])
             
-            # Actualizar los tokens en la base de datos
+            # Actualiza los tokens en la base de datos
             update_query = """
             UPDATE meli_access 
             SET access_token = %s, refresh_token = %s 
@@ -69,29 +63,48 @@ def verificaMeli():
             cursor.execute(update_query, (new_access_token, new_refresh_token, meli_access['app_id']))
             conn.commit()
 
-            # Intentar nuevamente obtener nickname, first_name y last_name
+            # Intenta nuevamente obtener los datos del usuario con el nuevo token
             headers = {'Authorization': f"Bearer {new_access_token}"}
             response = requests.get("https://api.mercadolibre.com/users/me", headers=headers)
-            user_data = response.json() if response.status_code == 200 else {}
-            nickname = user_data.get("nickname")
-            first_name = user_data.get("first_name")
-            last_name = user_data.get("last_name")
-            
-            cursor.close()
-            conn.close()
-            return True, new_access_token, nickname, first_name, last_name
+            if response.status_code == 200:
+                user_data = response.json()
+                cursor.close()
+                conn.close()
+                return True, new_access_token, user_data.get('first_name'), user_data.get('last_name'), user_data.get('nickname')
         else:
             print("Error al renovar el token:", token_response.json())
-    
+
     cursor.close()
     conn.close()
     return False, None, None, None, None
 
-@main.route('/', methods=['GET', 'POST'])
-def buscar():
+
+# Context processor para hacer los datos de Mercado Libre disponibles en todas las plantillas
+@main.app_context_processor
+def inject_meli_status():
+    """Inyecta el estado de conexión de Mercado Libre en el contexto de todas las plantillas."""
+    conectado, access_token, first_name, last_name, nickname = verificar_meli()
+    return {
+        'conectado_a_meli': conectado,
+        'access_token': access_token,
+        'first_name': first_name,
+        'last_name': last_name,
+        'nickname': nickname
+    }
+
+# Página de inicio
+@main.route('/')
+def index():
+    return render_template('index.html')
+
+@main.route('/inicio')
+def inicio():
+    return render_template('index.html')
+
+# Función para buscar datos de Celesa
+@main.route('/buscar-celesa', methods=['GET', 'POST'])
+def buscar_celesa():
     data = None
-    conectado_a_meli, access_token, nickname, first_name, last_name = verificaMeli()  # Verifica la conexión a Mercado Libre
-    
     if request.method == 'POST':
         isbn = request.form.get('isbn')
         conn = mysql.connector.connect(**db_config)
@@ -111,4 +124,33 @@ def buscar():
         cursor.close()
         conn.close()
     
-    return render_template('index.html', data=data, conectado_a_meli=conectado_a_meli, access_token=access_token, nickname=nickname, first_name=first_name, last_name=last_name)
+    return render_template('buscar_celesa.html', data=data)
+
+# Blueprint para Mercado Libre
+mercado_libre_bp = Blueprint('mercado_libre', __name__, url_prefix='/mercado-libre')
+
+@mercado_libre_bp.route('/publicaciones')
+def publicaciones():
+    return render_template('blank_page.html')
+
+@mercado_libre_bp.route('/ventas')
+def ventas():
+    return render_template('blank_page.html')
+
+# Blueprint para Celesa
+celesa_bp = Blueprint('celesa', __name__, url_prefix='/celesa')
+
+@celesa_bp.route('/buscar')
+def buscar():
+    return render_template('blank_page.html')
+
+@celesa_bp.route('/publicar')
+def publicar():
+    return render_template('blank_page.html')
+
+# Blueprint para Configuración
+configuracion_bp = Blueprint('configuracion', __name__)
+
+@configuracion_bp.route('/configuracion')
+def configuracion():
+    return render_template('blank_page.html')
