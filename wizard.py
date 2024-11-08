@@ -68,3 +68,11 @@ print("Proceso de configuración completado.")
 
 # Iniciar la aplicación Flask al finalizar
 iniciar_aplicacion_flask()
+
+# Eliminar este script después de su ejecución
+script_path = os.path.realpath(__file__)
+try:
+    os.remove(script_path)
+    print(f"El script {script_path} ha sido eliminado.")
+except Exception as e:
+    print(f"No se pudo eliminar el script: {e}")
