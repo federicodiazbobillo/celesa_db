@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+
+{% block title %}Buscar Datos de Celesa{% endblock %}
+
+{% block content %}
+
+<h1>Buscar Datos de Celesa</h1>
+
+<!-- Formulario para buscar por ISBN -->
+<form action="{{ url_for('main.buscar_celesa') }}" method="post">
+    <label for="isbn">Ingrese ISBN:</label>
+    <input type="text" id="isbn" name="isbn" required>
+    <button type="submit">Buscar</button>
+</form>
+
+<!-- Resultados de la búsqueda -->
+{% if data %}
+    <h2>Resultado de la Búsqueda</h2>
+    <table border="1">
+        <thead>
+            <tr>
+                {% for key in data[0].keys() %}
+                    <th>{{ key }}</th>
+                {% endfor %}
+                <th>Imagen</th> <!-- Nueva columna para la imagen -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in data %}
+                <tr>
+                    {% for value in row.values() %}
+                        <td>{{ value }}</td>
+                    {% endfor %}
+                    <td>
+                        <img src="https://www.celesa.com/imagenes/{{ row['record_reference'][:7] }}/{{ row['record_reference'][:-1] }}.JPG" 
+                             alt="Imagen de {{ row['record_reference'] }}" 
+                             style="max-width: 200px; max-height: 200px;">
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% elif data is not none %}
+    <p>No se encontraron resultados para el ISBN ingresado.</p>
+{% endif %}
+
+{% endblock %}
