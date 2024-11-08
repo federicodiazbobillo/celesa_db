@@ -4,7 +4,7 @@ venv/
 # Archivos de configuración sensibles
 config.ini
 .env
-
+pyvenv.cfg
 # Archivos compilados de Python
 *.pyc
 __pycache__/
