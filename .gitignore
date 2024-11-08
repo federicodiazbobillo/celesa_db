@@ -16,3 +16,6 @@ Thumbs.db
 # Archivos de salida (si generas reportes o logs)
 logs/
 *.log
+
+#archivos python
+run.py
